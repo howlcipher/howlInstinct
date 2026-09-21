@@ -1,0 +1,29 @@
+# Build output
+/build/
+/dist/
+coverage.out
+coverage.html
+
+# Root-anchored binaries. Root anchored so that package sources named after
+# the binary stay addable.
+/howlinstinct
+
+# Credentials. HowlInstinct never reads a key from a file, but an operator
+# may still keep one nearby, and nothing credential-shaped should be
+# committable by accident.
+.env
+.env.*
+*.pem
+*.key
+credentials.json
+
+# Operator-local configuration. The tracked example lives at
+# config/howlinstinct.example.toml and grants no secrets.
+config.toml
+!config/howlinstinct.example.toml
+
+# Editors and OS
+.DS_Store
+*.swp
+.idea/
+.vscode/

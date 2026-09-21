@@ -1,0 +1,29 @@
+HowlInstinct
+Copyright 2026 William Elias
+
+This product includes software developed as part of the Howl ecosystem
+(https://github.com/howlcipher).
+
+Licensed under the Apache License, Version 2.0. See the LICENSE file.
+
+--------------------------------------------------------------------------
+Third-party source dependencies
+--------------------------------------------------------------------------
+
+  github.com/spf13/cobra        Apache License 2.0
+  github.com/spf13/pflag        BSD 3-Clause
+  gopkg.in/yaml.v3              MIT and Apache License 2.0
+
+--------------------------------------------------------------------------
+Models, inference endpoints, and hosted services
+--------------------------------------------------------------------------
+
+The Apache License 2.0 covers THIS SOURCE CODE ONLY.
+
+It grants no rights whatsoever to any model, model weights, inference
+endpoint, or hosted service that HowlInstinct may be configured to call.
+Those carry their own separate licenses and terms of service, and it is the
+operator's responsibility to read and comply with them. HowlInstinct ships
+no model weights and embeds no inference engine.
+
+See docs/PROVIDERS.md for the licensing boundary in detail.
