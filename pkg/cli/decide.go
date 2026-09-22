@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -169,6 +170,11 @@ func buildRequest(cmd *cobra.Command, f *decideFlags, lim instinct.Limits) (inst
 	return buildSingleQuestion(f, lim)
 }
 
+// maxRequestFileBytes bounds a request document read from a file. The decoder
+// applies its own limit derived from the configured state size; this is the
+// outer bound that stops an enormous file being buffered before it gets there.
+const maxRequestFileBytes = 64 << 20 // 64 MiB
+
 // requestReader returns a reader for a JSON request, or nil when the request
 // is to be assembled from flags.
 func requestReader(cmd *cobra.Command, f *decideFlags) (io.Reader, error) {
@@ -176,6 +182,13 @@ func requestReader(cmd *cobra.Command, f *decideFlags) (io.Reader, error) {
 		return cmd.InOrStdin(), nil
 	}
 	if f.input != "" {
+		// Read and close here rather than handing back an open file.
+		//
+		// The obvious alternative, registering the close with
+		// cobra.OnFinalize, appends to a package-global slice: the handle
+		// would outlive the command, accumulate across invocations, and never
+		// close at all in a long-lived process that mounts this subtree.
+		//
 		// #nosec G304 -- the path is supplied by the operator running the
 		// command, not by untrusted input.
 		file, err := os.Open(f.input)
@@ -183,8 +196,18 @@ func requestReader(cmd *cobra.Command, f *decideFlags) (io.Reader, error) {
 			return nil, instinct.Wrap(instinct.KindInvalidInput, "decide", err,
 				"opening request file")
 		}
-		cobra.OnFinalize(func() { _ = file.Close() })
-		return file, nil
+		defer func() { _ = file.Close() }()
+
+		raw, err := io.ReadAll(io.LimitReader(file, maxRequestFileBytes+1))
+		if err != nil {
+			return nil, instinct.Wrap(instinct.KindInvalidInput, "decide", err,
+				"reading request file")
+		}
+		if len(raw) > maxRequestFileBytes {
+			return nil, instinct.Errorf(instinct.KindInvalidInput, "decide",
+				"request file exceeds the %d byte limit", maxRequestFileBytes)
+		}
+		return bytes.NewReader(raw), nil
 	}
 	if f.state != "" || f.typ != "" {
 		return nil, nil
@@ -243,7 +266,7 @@ func buildSingleQuestion(f *decideFlags, lim instinct.Limits) (instinct.Request,
 		RetainState: f.retainState,
 	}
 
-	rule, err := escalationRule(f)
+	rule, err := escalationRule(f.minConfidence, f.minMargin)
 	if err != nil {
 		return req, err
 	}
@@ -253,17 +276,24 @@ func buildSingleQuestion(f *decideFlags, lim instinct.Limits) (instinct.Request,
 	return req, req.Validate(lim)
 }
 
-// escalationRule reads the caller's thresholds. A flag that was not supplied
-// contributes nothing: there is no default threshold anywhere in this tool.
-func escalationRule(f *decideFlags) (instinct.EscalationRule, error) {
+// escalationRule reads the caller's thresholds from their raw flag values.
+//
+// A flag that was not supplied contributes nothing. That is the whole point:
+// there is no default threshold anywhere in this tool, so an unset flag has to
+// mean "no rule" rather than "the usual rule".
+//
+// It takes the raw strings rather than a flag struct so that both decide and
+// eval parse thresholds through exactly the same path, and neither can grow a
+// default the other lacks.
+func escalationRule(minConfidence, minMargin string) (instinct.EscalationRule, error) {
 	var rule instinct.EscalationRule
 	for _, m := range []struct {
 		flag string
 		raw  string
 		dst  **float64
 	}{
-		{"--min-provider-confidence", f.minConfidence, &rule.MinProviderConfidence},
-		{"--min-instinct-margin", f.minMargin, &rule.MinInstinctMargin},
+		{"--min-provider-confidence", minConfidence, &rule.MinProviderConfidence},
+		{"--min-instinct-margin", minMargin, &rule.MinInstinctMargin},
 	} {
 		if m.raw == "" {
 			continue

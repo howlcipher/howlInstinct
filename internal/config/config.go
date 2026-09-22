@@ -11,6 +11,7 @@ package config
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -19,7 +20,6 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 
-	"github.com/howlcipher/howlinstinct/internal/provider/jev"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
 )
 
@@ -146,16 +146,35 @@ func LocalConfigPath() (path string, explicit bool) {
 	return filepath.Join(home, ".config", "howlinstinct", "config.toml"), false
 }
 
+// maxConfigBytes bounds the operator configuration file.
+//
+// The file is chosen by the operator rather than supplied by an attacker, so
+// this is not a defence against a hostile input. It is a bound: a truncated
+// disk, a wrong path pointing at something enormous, or a symlink to a device
+// should fail with a clear message rather than read until memory runs out.
+const maxConfigBytes = 1 << 20 // 1 MiB
+
 func loadFile(path string) (Config, bool, error) {
 	// #nosec G304 -- the path is the operator's own configuration file,
 	// chosen by them, not untrusted input.
-	raw, err := os.ReadFile(path)
+	f, err := os.Open(path)
 	if os.IsNotExist(err) {
 		return Config{}, false, nil
 	}
 	if err != nil {
 		return Config{}, false, instinct.Wrap(instinct.KindConfiguration, "config", err,
+			"opening %s", path)
+	}
+	defer func() { _ = f.Close() }()
+
+	raw, err := io.ReadAll(io.LimitReader(f, maxConfigBytes+1))
+	if err != nil {
+		return Config{}, false, instinct.Wrap(instinct.KindConfiguration, "config", err,
 			"reading %s", path)
+	}
+	if len(raw) > maxConfigBytes {
+		return Config{}, false, instinct.Errorf(instinct.KindConfiguration, "config",
+			"%s exceeds the %d byte configuration limit", path, maxConfigBytes)
 	}
 	var out Config
 	if err := toml.Unmarshal(raw, &out); err != nil {
@@ -285,21 +304,6 @@ func configFileHint() string {
 		return "the operator config file"
 	}
 	return p
-}
-
-// JevConfig projects the resolved configuration onto the Jev adapter.
-func (c Config) JevConfig() jev.Config {
-	out := jev.DefaultConfig()
-	out.BaseURL = c.BaseURL
-	out.Model = c.Model
-	out.APIKeyEnv = c.APIKeyEnv
-	out.Timeout = c.Timeout
-	out.MaxRetries = c.MaxRetries
-	out.MaxResponseBytes = c.Limits.MaxResponseBytes
-	if c.StrictSchema != nil {
-		out.StrictSchema = *c.StrictSchema
-	}
-	return out
 }
 
 // Describe renders the resolved configuration for humans.

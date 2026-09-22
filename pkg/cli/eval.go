@@ -9,7 +9,6 @@ import (
 	"github.com/howlcipher/howlinstinct/internal/config"
 	"github.com/howlcipher/howlinstinct/internal/decision"
 	"github.com/howlcipher/howlinstinct/internal/eval"
-	"github.com/howlcipher/howlinstinct/pkg/instinct"
 	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
@@ -78,10 +77,7 @@ func runEval(cmd *cobra.Command, f *evalFlags) error {
 		return asExit(err)
 	}
 
-	rule, err := escalationRule(&decideFlags{
-		minConfidence: f.minConfidence,
-		minMargin:     f.minMargin,
-	})
+	rule, err := escalationRule(f.minConfidence, f.minMargin)
 	if err != nil {
 		return asExit(err)
 	}
@@ -145,7 +141,3 @@ func orUnknown(u eval.Unavailable) string {
 	}
 	return string(u)
 }
-
-// compile-time assurance that the eval command's escalation parsing stays in
-// step with decide's, since both must refuse to invent a default threshold.
-var _ = func() instinct.EscalationRule { return instinct.EscalationRule{} }

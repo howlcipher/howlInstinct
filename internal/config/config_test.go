@@ -264,11 +264,6 @@ api_key_env = "HOWLINSTINCT_TEST_KEY"
 	if !strings.Contains(described, "(set)") {
 		t.Fatalf("Describe() should report whether the variable is populated:\n%s", described)
 	}
-
-	// The adapter projection must carry the variable name, not the value.
-	if jc := cfg.JevConfig(); jc.APIKeyEnv != "HOWLINSTINCT_TEST_KEY" {
-		t.Fatalf("JevConfig().APIKeyEnv = %q, want the variable name", jc.APIKeyEnv)
-	}
 }
 
 // An unset credential variable must be visible in the description, because

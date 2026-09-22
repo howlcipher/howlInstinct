@@ -12,6 +12,7 @@ package eval
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,14 +72,32 @@ type Case struct {
 	Notes string `json:"notes,omitempty" yaml:"notes"`
 }
 
+// MaxDatasetBytes bounds an evaluation dataset file.
+//
+// Datasets are hand-written and committed, so this is a bound rather than a
+// defence: a wrong path should fail with a clear message instead of reading
+// until memory runs out.
+const MaxDatasetBytes = 32 << 20 // 32 MiB
+
 // Load reads a dataset from a YAML or JSON file and validates it.
 func Load(path string) (Dataset, error) {
 	// #nosec G304 -- the path names an evaluation dataset chosen by the
 	// operator running the command.
-	raw, err := os.ReadFile(path)
+	f, err := os.Open(path)
+	if err != nil {
+		return Dataset{}, instinct.Wrap(instinct.KindInvalidInput, "eval", err,
+			"opening dataset")
+	}
+	defer func() { _ = f.Close() }()
+
+	raw, err := io.ReadAll(io.LimitReader(f, MaxDatasetBytes+1))
 	if err != nil {
 		return Dataset{}, instinct.Wrap(instinct.KindInvalidInput, "eval", err,
 			"reading dataset")
+	}
+	if len(raw) > MaxDatasetBytes {
+		return Dataset{}, instinct.Errorf(instinct.KindInvalidInput, "eval",
+			"dataset %s exceeds the %d byte limit", path, MaxDatasetBytes)
 	}
 
 	var ds Dataset
