@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://howlcipher.github.io/howlInstinct/sitemap.xml
