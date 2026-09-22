@@ -1,0 +1,52 @@
+# golangci-lint configuration.
+#
+# Pinned by version in CI rather than run as @latest, so that a new release of
+# a linter cannot turn a green branch red without anyone changing anything.
+version: "2"
+
+linters:
+  default: standard
+  enable:
+    - bodyclose      # an undrained response body leaks a connection
+    - errorlint      # errors.As/Is rather than type assertions on wrapped errors
+    - gocritic
+    - misspell
+    - nilerr         # returning nil after a non-nil error is almost always a bug
+    - revive
+    - unconvert
+    - usestdlibvars
+
+  settings:
+    errcheck:
+      # Writes to a command's own output stream are excluded.
+      #
+      # These are rendering calls to a writer the CLI owns. The only realistic
+      # failure is a closed pipe, which is not actionable halfway through
+      # rendering a result, and checking each one would bury the output logic
+      # under error handling that can only ever be discarded. Writes that go
+      # anywhere consequential, such as a file or a network connection, are
+      # still checked.
+      exclude-functions:
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+
+    revive:
+      rules:
+        - name: exported
+          # Every exported symbol in a contract package needs a doc comment;
+          # siblings read these instead of the source.
+          severity: warning
+
+  exclusions:
+    rules:
+      # Table-driven tests legitimately repeat structure, and a test that
+      # deliberately constructs malformed input will trip several checks.
+      - path: _test\.go
+        linters:
+          - gocritic
+          - revive
+
+formatters:
+  enable:
+    - gofmt

@@ -13,25 +13,37 @@ import (
 	"github.com/howlcipher/howlinstinct/pkg/cli"
 )
 
-// main is deliberately the only place in the program that exits.
+// main is deliberately the only place in the program that exits, and it does
+// nothing but translate a return value into an exit code.
 //
-// Everything below returns errors, which keeps the command tree testable: a
-// test can build and run any command repeatedly and inspect what came back,
-// which is impossible once a library starts calling os.Exit.
+// The work happens in run, which returns rather than exiting, so that its
+// deferred signal cleanup actually runs. os.Exit does not unwind defers, so
+// calling it from inside the function holding the defer would silently skip
+// the cleanup.
 func main() {
+	os.Exit(run())
+}
+
+// run executes the command tree and reports the process exit code.
+//
+// Keeping everything below main error-returning rather than exiting is what
+// makes the command tree testable: a test can build and run any command
+// repeatedly and inspect the result, which is impossible once a library
+// starts calling os.Exit.
+func run() int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
 	err := cli.NewRootCommand().ExecuteContext(ctx)
 	if err == nil {
-		return
+		return cli.ExitOK
 	}
 
 	fmt.Fprintln(os.Stderr, "howlinstinct:", err)
 
 	var exitErr *cli.ExitError
 	if errors.As(err, &exitErr) {
-		os.Exit(exitErr.Code)
+		return exitErr.Code
 	}
-	os.Exit(1)
+	return 1
 }

@@ -44,10 +44,19 @@ const (
 type Action string
 
 const (
-	ActionPageOnCall    Action = "PAGE_ONCALL"
-	ActionFileTicket    Action = "FILE_TICKET"
+	// ActionPageOnCall wakes a human immediately.
+	ActionPageOnCall Action = "PAGE_ONCALL"
+
+	// ActionFileTicket records the event for normal working hours.
+	ActionFileTicket Action = "FILE_TICKET"
+
+	// ActionEscalateHuman asks a person to look before anything is done. It
+	// is this policy's answer whenever the judgments were not decisive
+	// enough, or were not available at all.
 	ActionEscalateHuman Action = "ESCALATE_TO_HUMAN"
-	ActionIgnore        Action = "IGNORE"
+
+	// ActionIgnore takes no action.
+	ActionIgnore Action = "IGNORE"
 )
 
 // Decision is the caller's conclusion, with its reasoning.

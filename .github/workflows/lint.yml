@@ -1,0 +1,44 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint and vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+
+      # Installed from source at a pinned version rather than fetched as a
+      # prebuilt binary or run as @latest.
+      #
+      # Pinned, because a new linter release should never turn a green branch
+      # red without anyone changing anything. From source, because
+      # golangci-lint refuses to analyse a module whose Go directive is newer
+      # than the language version golangci-lint itself was built with, and
+      # building it here with this repository's toolchain is what keeps the
+      # two in step.
+      - name: Install golangci-lint
+        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
+
+      - name: Lint
+        run: $(go env GOPATH)/bin/golangci-lint run --timeout 5m
+
+      - name: Vulnerability scan
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
+          $(go env GOPATH)/bin/govulncheck ./...

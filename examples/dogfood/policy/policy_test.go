@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -156,15 +157,22 @@ func TestNoDecisionThresholdLivesInsideHowlInstinct(t *testing.T) {
 
 	for _, root := range roots {
 		fset := token.NewFileSet()
-		pkgs, err := parser.ParseDir(fset, root, nil, 0)
+		entries, err := os.ReadDir(root)
 		if err != nil {
-			t.Fatalf("parsing %s: %v", root, err)
+			t.Fatalf("reading %s: %v", root, err)
 		}
-		for _, pkg := range pkgs {
-			for name, file := range pkg.Files {
-				if strings.HasSuffix(name, "_test.go") {
-					continue
-				}
+		for _, entry := range entries {
+			name := entry.Name()
+			// Only this package's own non-test sources. Tests legitimately
+			// construct thresholds in order to assert on them.
+			if entry.IsDir() || !strings.HasSuffix(name, ".go") || strings.HasSuffix(name, "_test.go") {
+				continue
+			}
+			file, err := parser.ParseFile(fset, filepath.Join(root, name), nil, 0)
+			if err != nil {
+				t.Fatalf("parsing %s: %v", name, err)
+			}
+			{
 				ast.Inspect(file, func(n ast.Node) bool {
 					cmp, ok := n.(*ast.BinaryExpr)
 					if !ok {

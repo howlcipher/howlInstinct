@@ -1,0 +1,81 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+
+      # gofmt -l prints offending files and still exits 0, so the output
+      # itself has to be turned into the failure.
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "These files are not gofmt clean:"
+            echo "$unformatted"
+            exit 1
+          fi
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Build
+        run: go build ./...
+
+      # The whole suite runs offline: no network, no credentials, no inference
+      # hardware. If this job ever needs a secret, something has gone wrong
+      # with the mock provider.
+      - name: Test with race detector
+        run: go test -race ./...
+
+      - name: Coverage
+        run: |
+          go test -coverprofile=coverage.out -covermode=atomic ./...
+          go tool cover -func=coverage.out | tail -1
+
+      # The documented commands are part of the contract, so they are
+      # exercised rather than trusted.
+      - name: Run the shipped evaluation suites
+        run: |
+          go build -o build/howlinstinct ./cmd/howlinstinct
+          for suite in evals/*/cases.yaml; do
+            echo "=== $suite"
+            ./build/howlinstinct eval --dataset "$suite"
+          done
+
+      - name: Run the dogfood example
+        run: go run ./examples/dogfood
+
+  build-matrix:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.x'
+      - run: go build ./...
+      - run: go test ./pkg/... ./internal/...

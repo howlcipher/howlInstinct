@@ -187,7 +187,7 @@ func (p *Provider) answer(id, state string, q instinct.Question) instinct.Judgme
 func tokenize(s string) map[string]bool {
 	out := map[string]bool{}
 	for _, f := range strings.FieldsFunc(strings.ToLower(s), func(r rune) bool {
-		return !(r >= 'a' && r <= 'z') && !(r >= '0' && r <= '9')
+		return !isWordRune(r)
 	}) {
 		if len(f) < 3 {
 			continue // drop articles and noise
@@ -195,6 +195,12 @@ func tokenize(s string) map[string]bool {
 		out[stem(f)] = true
 	}
 	return out
+}
+
+// isWordRune reports whether r can appear inside a token. The input is
+// already lowercased, so only lowercase letters and digits qualify.
+func isWordRune(r rune) bool {
+	return (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9')
 }
 
 // stem is a crude suffix trim. It is not linguistics; it just makes "outages"

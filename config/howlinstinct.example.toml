@@ -1,0 +1,63 @@
+# HowlInstinct operator configuration example.
+#
+# This example grants no secrets.
+#
+# Copy it to ~/.config/howlinstinct/config.toml, or point
+# HOWLINSTINCT_LOCAL_CONFIG at a file of your own.
+#
+# Configuration precedence, lowest to highest:
+#
+#   built-in defaults  <  this file  <  environment variables  <  command flags
+#
+# Each layer is more specific to the moment than the one below it: a file
+# describes a machine, the environment describes a process, and a flag
+# describes a single invocation.
+
+# Which adapter to use: "mock" or "jev".
+#
+# The default is "mock", a deterministic offline baseline that needs no
+# network, credentials, or hardware. It is a lexical word-overlap heuristic
+# and not a semantic model; it exists so that a fresh install works and so
+# that evaluations have a baseline to beat.
+provider = "mock"
+
+# ---------------------------------------------------------------------------
+# Settings below apply when provider = "jev".
+# ---------------------------------------------------------------------------
+
+# Any endpoint speaking the Jev-compatible System One contract
+# (POST /v1/systemone). There is deliberately no default: defaulting to a
+# vendor's hostname would make a hosted service the implicit destination of
+# whatever state you judge.
+#
+#   a local server:  base_url = "http://127.0.0.1:8080"
+#   a hosted one:    base_url = "https://api.example.com"
+# base_url = ""
+
+# Model identifier, passed through verbatim.
+# model = ""
+
+# THE NAME of the environment variable holding your API key. Never the key.
+#
+# HowlInstinct reads the credential from the environment at call time and puts
+# it straight into an Authorization header. It is never written to a config
+# file, never accepted as a flag, never logged, and never stored in a receipt.
+# That is what makes a resolved configuration safe to paste into a ticket.
+# api_key_env = "MY_PROVIDER_API_KEY"
+
+# Overall deadline for a single decision, as a Go duration.
+# timeout = "20s"
+
+# Retries for transient provider failures only: rate limiting, gateway errors,
+# overload, and transport failures. A rejected request, a bad credential, and
+# a response that failed validation are never retried.
+# max_retries = 2
+
+# Reject provider responses carrying fields this version does not know about.
+#
+# Strict (the default) means a provider adding a harmless field breaks this
+# adapter until it is updated. Permissive means a provider renaming a field we
+# rely on degrades silently into judgments built from zero values. For a
+# component whose premise is that provider output is untrusted, failing loudly
+# is the consistent choice.
+# strict_schema = true

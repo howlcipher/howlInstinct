@@ -28,6 +28,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 	"time"
@@ -66,7 +67,7 @@ func main() {
 	}
 }
 
-func run(out *os.File) error {
+func run(out io.Writer) error {
 	// The mock provider needs no network, no credentials, and no hardware,
 	// which is why this example runs anywhere.
 	engine := decision.New(mock.New(), decision.WithTimeout(5*time.Second))
@@ -82,7 +83,7 @@ func run(out *os.File) error {
 	return nil
 }
 
-func handle(out *os.File, engine *decision.Engine, ev event) error {
+func handle(out io.Writer, engine *decision.Engine, ev event) error {
 	fmt.Fprintf(out, "EVENT: %s\n", ev.name)
 	fmt.Fprintf(out, "  %s\n\n", wrapText(ev.state, 68, "  "))
 
@@ -159,7 +160,7 @@ func buildRequest(state string) instinct.Request {
 	}
 }
 
-func printJudgment(out *os.File, id string, j instinct.Judgment) {
+func printJudgment(out io.Writer, id string, j instinct.Judgment) {
 	fmt.Fprintf(out, "  %-12s ", id)
 	switch {
 	case j.Bool != nil:
@@ -216,6 +217,7 @@ func wrapText(s string, width int, indent string) string {
 	return b.String()
 }
 
-// compile-time check that the example only reads receipts and never reaches
-// into HowlInstinct's decision machinery to change an outcome.
-var _ = func(r []receipt.DecisionReceipt) policy.Decision { return policy.Apply(r) }
+// compile-time check that the policy consumer's entire interface with
+// HowlInstinct is reading receipts: it takes them and returns a decision,
+// with no route back into the decision machinery to change an outcome.
+var _ func([]receipt.DecisionReceipt) policy.Decision = policy.Apply
