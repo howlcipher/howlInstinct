@@ -1,0 +1,50 @@
+name: Decode Pages Assets
+on:
+  push:
+    branches: ["cursor/howlinstinct-pages-4ad1"]
+    paths:
+      - "docs/*.zlib.b64"
+      - ".github/workflows/decode-pages-assets.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: decode-pages-assets
+  cancel-in-progress: true
+jobs:
+  decode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Decode zlib+base64 assets into docs/
+        run: |
+          python3 <<'PY'
+          import base64, zlib, hashlib, pathlib
+          docs = pathlib.Path("docs")
+          mapping = {
+            "style.css.zlib.b64": "style.css",
+            "index.html.zlib.b64": "index.html",
+          }
+          expected = {
+            "style.css": "c60708f3154fe019fe2028c20678a6c8ab74ff2aa64722f587007e40921e80bb",
+            "index.html": "154160dd0e6786bf914879c7559c30fbcd86fb006af18b52515b18e4a72b9e95",
+          }
+          for src, dst in mapping.items():
+              raw = (docs / src).read_text().strip()
+              data = zlib.decompress(base64.b64decode(raw))
+              digest = hashlib.sha256(data).hexdigest()
+              assert digest == expected[dst], (dst, digest)
+              (docs / dst).write_bytes(data)
+              print(f"wrote docs/{dst} ({len(data)} bytes, sha256={digest})")
+          PY
+      - name: Commit decoded assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/style.css docs/index.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Add decoded docs/style.css and docs/index.html for HowlInstinct Pages"
+            git push
+          fi
