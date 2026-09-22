@@ -3,6 +3,8 @@
 The fast semantic decision layer of the [Howl](https://github.com/howlcipher)
 ecosystem.
 
+**Documentation site:** https://howlcipher.github.io/howlInstinct/
+
 Given some state and a bounded question, HowlInstinct returns a **typed
 judgment with explicit uncertainty and provenance**.
 
