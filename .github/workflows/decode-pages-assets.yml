@@ -57,10 +57,12 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/style.css docs/index.html 2>/dev/null || true
+          git add docs/style.css || true
+          git add docs/index.html || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
+            git status
             git commit -m "Add decoded docs/style.css and docs/index.html for HowlInstinct Pages"
             git push
           fi
