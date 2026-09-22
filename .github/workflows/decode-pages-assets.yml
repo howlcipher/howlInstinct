@@ -4,6 +4,7 @@ on:
     branches: ["cursor/howlinstinct-pages-4ad1"]
     paths:
       - "docs/*.zlib.b64"
+      - "docs/*.zlib.b64.part*"
       - ".github/workflows/decode-pages-assets.yml"
   workflow_dispatch:
 permissions:
@@ -16,27 +17,38 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-      - name: Decode zlib+base64 assets into docs/
+      - name: Assemble and decode assets
         run: |
           python3 <<'PY'
           import base64, zlib, hashlib, pathlib
           docs = pathlib.Path("docs")
-          mapping = {
-            "style.css.zlib.b64": ("style.css", "c60708f3154fe019fe2028c20678a6c8ab74ff2aa64722f587007e40921e80bb"),
+          p0, p1 = docs / "index.html.zlib.b64.part0", docs / "index.html.zlib.b64.part1"
+          if p0.is_file() and p1.is_file():
+              assembled = "".join(p0.read_text().split()) + "".join(p1.read_text().split())
+              (docs / "index.html.zlib.b64").write_text(assembled + "\n")
+              print("assembled index.html.zlib.b64", len(assembled))
+          expected = {
+            "style.css": "c60708f3154fe019fe2028c20678a6c8ab74ff2aa64722f587007e40921e80bb",
+            "index.html": "154160dd0e6786bf914879c7559c30fbcd86fb006af18b52515b18e4a72b9e95",
           }
-          # Optional HTML payload if present and valid
-          html_b64 = docs / "index.html.zlib.b64"
-          if html_b64.is_file():
-              mapping["index.html.zlib.b64"] = (
-                  "index.html",
-                  "154160dd0e6786bf914879c7559c30fbcd86fb006af18b52515b18e4a72b9e95",
-              )
-          for src, (dst, expected) in mapping.items():
-              raw = "".join((docs / src).read_text().split())
-              data = zlib.decompress(base64.b64decode(raw))
+          mapping = {
+            "style.css.zlib.b64": "style.css",
+            "index.html.zlib.b64": "index.html",
+          }
+          for src, dst in mapping.items():
+              path = docs / src
+              if not path.is_file():
+                  print(f"missing {src}, skip")
+                  continue
+              raw = "".join(path.read_text().split())
+              try:
+                  data = zlib.decompress(base64.b64decode(raw))
+              except Exception as e:
+                  print(f"SKIP {dst}: decompress failed: {e}")
+                  continue
               digest = hashlib.sha256(data).hexdigest()
-              if digest != expected:
-                  print(f"SKIP {dst}: digest {digest} != {expected}")
+              if digest != expected[dst]:
+                  print(f"SKIP {dst}: digest {digest} != {expected[dst]}")
                   continue
               (docs / dst).write_bytes(data)
               print(f"wrote docs/{dst} ({len(data)} bytes, sha256={digest})")
@@ -45,7 +57,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/style.css docs/index.html || true
+          git add docs/style.css docs/index.html 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
