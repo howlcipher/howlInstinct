@@ -1,0 +1,90 @@
+schema: howlinstinct.eval_dataset/v1
+name: evidence_sufficiency
+version: 1
+description: >
+  Does the supplied evidence actually support the stated claim? The intended
+  consumer is HowlProof, which would use this to decide whether a claim needs
+  a human reviewer, never to accept the claim on the judgment alone.
+
+  This is the hardest of the demonstration suites and the one where a lexical
+  baseline should do worst, because the words in a claim and the words in its
+  evidence overlap heavily whether or not the evidence supports the claim.
+  That is the point: it is a suite designed to expose a provider that is
+  pattern matching rather than judging.
+
+question:
+  type: noul
+  instructions: >
+    Does the evidence presented actually establish the claim being made, as
+    opposed to merely being related to it?
+  true_meaning: the evidence establishes the claim
+  false_meaning: the evidence is related but does not establish the claim
+
+cases:
+  - id: eve-001
+    state: |
+      Claim: the memory leak is fixed.
+      Evidence: a 72 hour soak test shows flat resident memory, where the previous
+      build grew 40MB per hour until it was killed.
+    expected: true
+
+  - id: eve-002
+    state: |
+      Claim: the memory leak is fixed.
+      Evidence: the developer says they rewrote the caching layer and it looks correct now.
+    expected: false
+
+  - id: eve-003
+    state: |
+      Claim: this endpoint handles 5000 requests per second.
+      Evidence: a load test at 5000 requests per second sustained for 10 minutes with
+      p99 latency under 80ms and no errors.
+    expected: true
+
+  - id: eve-004
+    state: |
+      Claim: this endpoint handles 5000 requests per second.
+      Evidence: the endpoint handled 5000 requests total over the course of a day.
+    expected: false
+    notes: Throughput versus total volume. Lexically near-identical, semantically unrelated.
+
+  - id: eve-005
+    state: |
+      Claim: no customer data was exposed.
+      Evidence: access logs for the affected bucket show no read requests from outside
+      our VPC for the entire window the misconfiguration was live.
+    expected: true
+
+  - id: eve-006
+    state: |
+      Claim: no customer data was exposed.
+      Evidence: we have no reports from customers about exposed data.
+    expected: false
+    notes: Absence of reports is not evidence of absence.
+
+  - id: eve-007
+    state: |
+      Claim: the regression was introduced in commit a1b2c3.
+      Evidence: the test passes on a1b2c3's parent and fails on a1b2c3, bisected
+      automatically across 200 commits.
+    expected: true
+
+  - id: eve-008
+    state: |
+      Claim: the regression was introduced in commit a1b2c3.
+      Evidence: a1b2c3 is the most recent commit that touched the affected file.
+    expected: false
+
+  - id: eve-009
+    state: |
+      Claim: the new ranking model is better than the old one.
+      Evidence: an A/B test over four weeks with 200,000 users showed a 3.1 percent
+      lift in click-through, significant at p less than 0.01.
+    expected: true
+
+  - id: eve-010
+    state: |
+      Claim: the new ranking model is better than the old one.
+      Evidence: offline evaluation on the training set shows higher accuracy.
+    expected: false
+    notes: Evaluating on the training set establishes nothing about generalization.

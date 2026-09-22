@@ -1,0 +1,73 @@
+schema: howlinstinct.eval_dataset/v1
+name: change_risk
+version: 1
+description: >
+  Place a proposed change on a bounded risk scale. The intended consumer is
+  HowlChangeOps, which would use the judgment as one input to a deterministic
+  policy, never as an authorization.
+
+  Risk labels are a judgement call even among experienced engineers, so the
+  ground truth here is one reasonable opinion rather than a fact. Treat
+  disagreement with these labels as information about the labels as much as
+  about the provider.
+
+question:
+  type: score
+  instructions: >
+    Rate the blast radius of this change if it goes wrong: how much is broken,
+    for how many people, and how hard is it to undo.
+  levels:
+    - negligible
+    - low
+    - moderate
+    - high
+    - critical
+
+cases:
+  - id: risk-001
+    state: "Fix a typo in a code comment. No behaviour changes."
+    expected: negligible
+
+  - id: risk-002
+    state: "Add a new optional query parameter to an internal endpoint, defaulted off, behind a feature flag."
+    expected: low
+
+  - id: risk-003
+    state: "Change the default page size from 20 to 50 for all API consumers."
+    expected: moderate
+
+  - id: risk-004
+    state: "Rotate the signing key used for all session tokens, invalidating every active session."
+    expected: high
+
+  - id: risk-005
+    state: "Run an irreversible migration that drops the legacy orders table in the production database."
+    expected: critical
+
+  - id: risk-006
+    state: "Update a development-only docker compose file used by nobody in production."
+    expected: negligible
+
+  - id: risk-007
+    state: "Bump a logging library patch version with no API change."
+    expected: low
+
+  - id: risk-008
+    state: "Switch the checkout service from the old payment gateway to the new one for all customers at once."
+    expected: critical
+
+  - id: risk-009
+    state: "Add an index to a large table online, which will consume IO for several hours."
+    expected: moderate
+
+  - id: risk-010
+    state: "Change the retry policy on the billing worker from three attempts to unlimited."
+    expected: high
+
+  - id: risk-011
+    state: "Reword an error message shown to internal administrators."
+    expected: negligible
+
+  - id: risk-012
+    state: "Delete the only backup retention policy on the customer data bucket."
+    expected: critical

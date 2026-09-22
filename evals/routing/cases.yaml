@@ -1,0 +1,83 @@
+schema: howlinstinct.eval_dataset/v1
+name: routing
+version: 1
+description: >
+  Route an inbound engineering report to the team that owns it. This is the
+  canonical HowlInstinct use: a bounded classification that would otherwise be
+  hand-rolled as a keyword rule or escalated to a full agent.
+
+  These cases are a demonstration of the harness, not a benchmark. They are
+  few, they were written by one person, and they are deliberately not
+  adversarial. Passing here is not evidence that a provider is fit to route
+  anyone's real traffic.
+
+question:
+  type: classify
+  instructions: >
+    Classify this engineering report into exactly one category, based on what
+    the reporter is describing rather than on how urgent it sounds.
+  options:
+    - bug
+    - feature
+    - security
+    - documentation
+    - operations
+    - unknown
+
+cases:
+  - id: route-001
+    state: "Clicking Save on the profile page throws a 500 and the change is lost. Reproduced on Firefox and Chrome."
+    expected: bug
+
+  - id: route-002
+    state: "It would be great if the export screen could also emit CSV alongside the existing JSON download."
+    expected: feature
+
+  - id: route-003
+    state: "The password reset token is not invalidated after use, so an intercepted reset link stays valid indefinitely."
+    expected: security
+
+  - id: route-004
+    state: "The README still tells people to run `make setup`, but that target was renamed to `make install` months ago."
+    expected: documentation
+
+  - id: route-005
+    state: "Disk usage on the primary database host crossed 90 percent overnight and the alert is still firing."
+    expected: operations
+
+  - id: route-006
+    state: "hey"
+    expected: unknown
+    notes: An empty-signal case. A provider that confidently classifies this is overreaching.
+
+  - id: route-007
+    state: "Uploading a file larger than 2GB silently truncates it instead of returning an error."
+    expected: bug
+
+  - id: route-008
+    state: "Please add dark mode to the dashboard, several people have asked for it."
+    expected: feature
+
+  - id: route-009
+    state: "Our API keys are being written to the application log in plaintext on every authentication failure."
+    expected: security
+
+  - id: route-010
+    state: "The deployment runbook does not mention the migration step, so the last two deploys missed it."
+    expected: documentation
+
+  - id: route-011
+    state: "The nightly backup job has failed three nights running with a timeout connecting to object storage."
+    expected: operations
+
+  - id: route-012
+    state: "Pagination returns duplicate rows when a record is deleted between page fetches."
+    expected: bug
+
+  - id: route-013
+    state: "Can we support logging in with a single sign-on provider instead of only email and password?"
+    expected: feature
+
+  - id: route-014
+    state: "A user reported they can view another tenant's invoices by changing the account id in the URL."
+    expected: security
