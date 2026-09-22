@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HowlInstinct is the fast semantic decision layer of the Howl ecosystem: typed judgments with explicit uncertainty and provenance. Confidence is not permission.">
+    <link rel="canonical" href="https://howlcipher.github.io/howlInstinct/">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="HowlInstinct">
+    <meta property="og:title" content="HowlInstinct | Decision Layer for Autonomous Systems">
+    <meta property="og:description" content="Before an agent acts, it should know why. Bounded semantic judgments with explicit uncertainty — HowlInstinct judges; something else decides whether anything is allowed.">
+    <meta property="og:url" content="https://howlcipher.github.io/howlInstinct/">
+    <meta property="og:image" content="https://howlcipher.github.io/howl/social-preview.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="HowlInstinct decision flow and receipts">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="HowlInstinct | Decision Layer for Autonomous Systems">
+    <meta name="twitter:description" content="Before an agent acts, it should know why. Confidence is not permission.">
+    <meta name="twitter:image" content="https://howlcipher.github.io/howl/social-preview.png">
+    <meta name="twitter:image:alt" content="HowlInstinct decision flow and receipts">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "HowlInstinct",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "POSIX, Linux, macOS",
+      "description": "Fast semantic decision layer for the Howl ecosystem. Typed judgments with explicit uncertainty and provenance. Confidence is not permission.",
+      "url": "https://howlcipher.github.io/howlInstinct/",
+      "author": {
+        "@type": "Person",
+        "name": "William Elias",
+        "url": "https://howlcipher.github.io/william_elias/"
+      },
+      "isPartOf": {
+        "@type": "SoftwareApplication",
+        "name": "Howl Autonomous Software Engineering Ecosystem",
+        "url": "https://howlcipher.github.io/howl/"
+      }
+    }
+    </script>
+
+    <title>HowlInstinct | Decision Layer for Autonomous Systems</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" type="image/png" href="favicon.png">
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <div id="eco-drawer-overlay" class="eco-drawer-overlay" aria-hidden="true"></div>
+
+    <aside id="eco-drawer" class="eco-drawer" aria-label="Howl Ecosystem Directory" aria-hidden="true">
+        <div class="drawer-header">
+            <div class="drawer-title">HOWL // ECOSYSTEM DIRECTORY</div>
+            <button id="eco-drawer-close" class="btn-drawer-close" type="button" aria-label="Close ecosystem directory">[✕ CLOSE]</button>
+        </div>
+        <div class="drawer-body">
+            <a href="https://howlcipher.github.io/howl/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWL // HUB</span>
+                    <span class="node-card-role">[PORTAL]</span>
+                </div>
+                <div class="node-card-desc">Central ecosystem portal, architectural blueprint, and cross-project governance map.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/HowlFutureWorks/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFUTUREWORKS</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[ORGANIZATION OS]</span>
+                </div>
+                <div class="node-card-desc">Version-controlled autonomous software organization: workforce, policy, institutional memory, governance and operating state.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlInstinct/" class="drawer-node-card active-hub">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLINSTINCT</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[DECISION LAYER]</span>
+                </div>
+                <div class="node-card-desc">Bounded semantic judgments with explicit uncertainty and provenance. Confidence is not permission.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlforge/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFORGE</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[WORKFORCE LAYER]</span>
+                </div>
+                <div class="node-card-desc">Durable roles, replaceable runtimes, deterministic matching, and inspectable handoff contracts for AI workers.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlproof/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLPROOF</span>
+                    <span class="node-card-role" style="color: var(--color-red);">[RED-TEAM QA]</span>
+                </div>
+                <div class="node-card-desc">Independent adversarial evaluation, falsification, reproducible findings, and evidence for verdicts.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlcreate/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLCREATE</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[CREATIVE SEARCH]</span>
+                </div>
+                <div class="node-card-desc">Computational creativity, open-ended problem exploration, reframing, and concept lineage.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlframe/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLFRAME</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[VM &amp; COMPILER]</span>
+                </div>
+                <div class="node-card-desc">AI-native reasoning language, typed intermediate representation, and sandboxed bytecode VM.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlplane/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLPLANE</span>
+                    <span class="node-card-role" style="color: var(--color-blue);">[CONTROL PLANE]</span>
+                </div>
+                <div class="node-card-desc">Engineering control plane with deterministic routing, adversarial falsification, and human gates.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlchangeops/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLCHANGEOPS</span>
+                    <span class="node-card-role" style="color: var(--color-red);">[AUTHORITY GATE]</span>
+                </div>
+                <div class="node-card-desc">Governed release controller enforcing cryptographic human approvals and bounded Git mutations.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlrelay/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLRELAY</span>
+                    <span class="node-card-role" style="color: var(--color-cyan);">[CONTINUITY]</span>
+                </div>
+                <div class="node-card-desc">Persistent asynchronous work coordination, durable journals, and resumable execution handoffs.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlnotes/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLNOTES</span>
+                    <span class="node-card-role" style="color: var(--color-cyan);">[KNOWLEDGE NOTEBOOK]</span>
+                </div>
+                <div class="node-card-desc">Engineering knowledge notebook &amp; full-stack dogfood consumer proving native persistent storage.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlboard/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLBOARD</span>
+                    <span class="node-card-role" style="color: var(--color-amber);">[EVALUATION SURFACE]</span>
+                </div>
+                <div class="node-card-desc">Observation console and full-stack deterministic task state machine application.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howlwriter/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLWRITER</span>
+                    <span class="node-card-role" style="color: var(--color-magenta);">[WRITING CONTROL]</span>
+                </div>
+                <div class="node-card-desc">Writing control system for voice preservation, deterministic style linting, humanization, and review.</div>
+            </a>
+
+            <a href="https://howlcipher.github.io/howldream/" class="drawer-node-card">
+                <div class="node-card-top">
+                    <span class="node-card-name">HOWLDREAM</span>
+                    <span class="node-card-role" style="color: var(--color-khaki);">[CONTROLLED DIVERGENCE]</span>
+                </div>
+                <div class="node-card-desc">Controlled divergent experiments, hallucination testing, failure analysis, and scoped verification.</div>
+            </a>
+
+        </div>
+        <div class="drawer-footer">
+            <span>● 14 ECOSYSTEM NODES</span>
+            <span>AUTH // HOWL 2026</span>
+        </div>
+    </aside>
+
+    <div class="layout-container">
+        <header class="site-header">
+            <div class="header-top">
+                <div class="header-brand">
+                    <a href="https://howlcipher.github.io/howlInstinct/" class="brand-sig">HOWL <span>//</span> INSTINCT</a>
+                    <span class="subsystem-tag">SYS_ID: HINS-DECISION-13</span>
+                </div>
+                <div class="header-actions">
+                    <button id="eco-menu-toggle" class="btn-eco-toggle" type="button" aria-expanded="false" aria-controls="eco-drawer" aria-label="Toggle Howl Ecosystem Directory">
+                        <span aria-hidden="true">☰</span> [ECOSYSTEM]
+                    </button>
+                    <button id="theme-toggle" class="btn-theme-toggle" type="button" aria-pressed="false">
+                        <span aria-hidden="true">☾</span> [DARK_MODE]
+                    </button>
+                    <a href="https://github.com/howlcipher/howlInstinct" class="btn-tech btn-tech-primary" target="_blank" rel="noreferrer">
+                        [ GITHUB REPO ]
+                    </a>
+                </div>
+            </div>
+
+            <nav class="section-nav" aria-label="Page sections">
+                <span class="section-nav-label">READ_PATH:</span>
+                <a href="#problem">01_Problem</a>
+                <a href="#flow">02_DecisionFlow</a>
+                <a href="#principles">03_Principles</a>
+                <a href="#receipts">04_Receipts</a>
+                <a href="#ecosystem">05_Ecosystem</a>
+                <a href="#providers">06_Providers</a>
+                <a href="#getting-started">07_QuickStart</a>
+                <a href="#status">08_Status</a>
+            </nav>
+        </header>
+
+        <main id="main-content">
+            <section class="hero-panel" aria-labelledby="main-title">
+                <div class="hero-banner">
+                    <span>SPEC_VER // BOOTSTRAP MVP (EARLY)</span>
+                    <span>ARCHITECTURE: JUDGMENT · UNCERTAINTY · RECEIPTS · NO AUTHORITY</span>
+                </div>
+                <div class="hero-body">
+                    <div class="hero-header-block">
+                        <p class="hero-kicker">// semantic decision layer / typed judgments / explicit uncertainty</p>
+                        <h1 id="main-title" class="hero-title">HowlInstinct <span class="jp-sub">ハウルインスティンクト // 2026</span></h1>
+                        <p class="hero-lead">
+                            Before an agent acts, it should know why.
+                            HowlInstinct is decision infrastructure for autonomous systems: given state and a bounded question, it returns a typed judgment with explicit uncertainty and provenance.
+                        </p>
+                    </div>
+
+                    <div class="axiom-card" role="region" aria-label="Governing Principle" style="border-left-color: var(--color-amber);">
+                        <strong style="color: var(--color-amber);">AXIOM // CONFIDENCE IS NOT PERMISSION.</strong>
+                        HowlInstinct judges. Something else decides whether anything is allowed to happen as a result. There is no default threshold anywhere in this codebase — and a test parses the source to keep it that way.
+                    </div>
+
+                    <div class="hero-actions">
+                        <a href="https://github.com/howlcipher/howlInstinct" class="btn-tech btn-tech-primary" target="_blank" rel="noreferrer">
+                            [ GITHUB ]
+                        </a>
+                        <a href="https://github.com/howlcipher/howlInstinct/blob/claude/howlinstinct-bootstrap-mvp-fn917z/README.md" class="btn-tech" target="_blank" rel="noreferrer">
+                            [ DOCUMENTATION ]
+                        </a>
+                        <a href="https://howlcipher.github.io/howl/" class="btn-tech">
+                            [ EXPLORE THE HOWL ECOSYSTEM ]
+                        </a>
+                    </div>
+
+                    <div class="hero-diagram-wrap" aria-label="Least-power progression">
+                        <div class="diagram-header">
+                            <span>LEAST POWER // CODE → INSTINCT → AGENT → HUMAN</span>
+                            <span>SYSTEM 0 → 1 → 2 → 3</span>
+                        </div>
+                        <div class="loop">
+                            <div class="loop-step"><strong>00 // CODE</strong>If deterministic code can answer it, HowlInstinct is the wrong tool.</div>
+                            <div class="loop-step"><strong>01 // INSTINCT</strong>Bounded semantic judgment with visible uncertainty.</div>
+                            <div class="loop-step elsewhere"><strong>02 // AGENT</strong>Reasoning, synthesis, planning, generation — when needed.</div>
+                            <div class="loop-step"><strong>03 // HUMAN</strong>Still uncertain, or policy requires authority.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="problem" aria-labelledby="problem-heading">
+                <div class="tech-header">
+                    <span class="sec-id">01</span>
+                    <h2 id="problem-heading">Why autonomous agents need a decision layer</h2>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        Most questions a system asks itself are small: Is this an incident? Which team owns this? How risky is this change?
+                        Without a dedicated decision layer, answers tend to become brittle keyword rules nobody trusts — or full generative agents that return prose someone then has to parse.
+                    </p>
+                    <div class="grid-2col">
+                        <div>
+                            <h3>Without Instinct</h3>
+                            <ul class="status-list">
+                                <li class="fail">Inconsistent answers across providers</li>
+                                <li class="fail">Overconfident prose treated as authority</li>
+                                <li class="fail">Hard to audit or reproduce</li>
+                                <li class="fail">Constraints stay implicit in prompts</li>
+                                <li class="fail"><code>if confidence &gt; 0.95 { deploy() }</code> appears somewhere</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h3>With HowlInstinct</h3>
+                            <ul class="status-list">
+                                <li class="pass">Typed decisions: noul, choice, score, classify</li>
+                                <li class="pass">Uncertainty stays visible (absence is not zero)</li>
+                                <li class="pass">Durable decision receipts with hashes</li>
+                                <li class="pass">Caller-owned escalation rules — never defaults</li>
+                                <li class="pass">No vocabulary for deploy, approve, or delete</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="flow" aria-labelledby="flow-heading">
+                <div class="tech-header">
+                    <span class="sec-id">02</span>
+                    <h2 id="flow-heading">Decision flow (as implemented)</h2>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        The request path is strictly ordered. Malformed batches are rejected before any provider is contacted;
+                        provider output is validated before a value enters a judgment.
+                    </p>
+                    <div class="code-container" role="img" aria-label="HowlInstinct request flow">
+                        <div class="code-header">
+                            <span class="code-title">[FLOW // ENGINE.DECIDE]</span>
+                            <span class="subsystem-tag">docs/ARCHITECTURE.md</span>
+                        </div>
+<pre><code>CONTEXT (state)
+    │
+    ▼
+CONSTRAINTS / LIMITS     validate sizes, types, identifiers
+    │
+    ▼
+OPTIONS / QUESTIONS      noul · choice · score · classify→choice
+    │
+    ▼
+PROVIDER                 ask adapter (mock / jev / future)
+    │
+    ▼
+EVIDENCE &amp; UNCERTAINTY   provider_confidence ≠ instinct_margin
+    │
+    ▼
+DECISION + OUTCOME       ACCEPTABLE_CONFIDENCE · LOW_CONFIDENCE · UNAVAILABLE · ERROR
+    │
+    ▼
+RATIONALE / RECEIPT      hashes, provider, latency — not raw state by default
+    │
+    ▼
+CALLER ACTION            caller applies policy / thresholds / escalation
+                         HowlInstinct never acts</code></pre>
+                    </div>
+                    <div class="table-wrap" style="margin-top: 1.25rem;">
+                        <table>
+                            <caption>Decision types</caption>
+                            <thead>
+                                <tr><th scope="col">Type</th><th scope="col">Question</th><th scope="col">Returns</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td><code>noul</code></td><td>Bounded yes/no</td><td>P(yes). No separate confidence — the probability is the uncertainty signal.</td></tr>
+                                <tr><td><code>choice</code></td><td>Pick one of a finite set</td><td>Selection, distribution, confidence</td></tr>
+                                <tr><td><code>score</code></td><td>Place on an ordinal scale</td><td>Weighted level, legend, distribution, confidence</td></tr>
+                                <tr><td><code>classify</code></td><td>Caller vocabulary</td><td>Lowered to <code>choice</code>; receipt keeps <code>compiled_to</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="principles" aria-labelledby="principles-heading">
+                <div class="tech-header">
+                    <span class="sec-id">03</span>
+                    <h2 id="principles-heading">Principles</h2>
+                </div>
+                <div class="tech-body">
+                    <div class="grid-2col">
+                        <div>
+                            <h3>Evidence before action</h3>
+                            <p>Judgments leave receipts. Evaluation suites ask whether a decision class is trustworthy enough for a use — empirically.</p>
+                        </div>
+                        <div>
+                            <h3>Explicit constraints</h3>
+                            <p>Requests are strictly validated. Escalation fires only when the caller supplied a rule.</p>
+                        </div>
+                        <div>
+                            <h3>Uncertainty awareness</h3>
+                            <p>Absence is not zero. Provider confidence and instinct margin never share a name or silently convert.</p>
+                        </div>
+                        <div>
+                            <h3>Deterministic edges</h3>
+                            <p>Deterministic outside, probabilistic inside. Receipts are canonicalized and hashed.</p>
+                        </div>
+                        <div>
+                            <h3>Human escalation</h3>
+                            <p>Outcomes include low confidence and unavailable — never APPROVED or DENIED.</p>
+                        </div>
+                        <div>
+                            <h3>Bounded autonomy</h3>
+                            <p>Judgment is not action. No deploy, page, merge, roll back, approve, or delete vocabulary.</p>
+                        </div>
+                        <div>
+                            <h3>Provider independence</h3>
+                            <p>Nothing outside <code>internal/provider</code> names a vendor, model, endpoint, or wire format.</p>
+                        </div>
+                        <div>
+                            <h3>Reproducibility</h3>
+                            <p>Default mock is offline and deterministic. Same decision produces the same receipt digest.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="receipts" aria-labelledby="receipts-heading">
+                <div class="tech-header">
+                    <span class="sec-id">04</span>
+                    <h2 id="receipts-heading">Decisions are artifacts</h2>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        A decision receipt is what survives a decision. It is designed to be stored, attached to an audit trail,
+                        and read back long after the state that produced it is gone.
+                    </p>
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">[RECEIPT // howlinstinct.decision_receipt/v1]</span>
+                            <span class="subsystem-tag">SCHEMA PUBLISHED</span>
+                        </div>
+<pre><code>Decision receipt fields (representative):
+  schema · decision_id · batch_id · timestamp
+  question_id · decision_type · compiled_to?
+  state_hash · question_hash          (content hashed, not retained by default)
+  outcome · choice? · probabilities?
+  provider_confidence? · instinct_margin?
+  needs_escalation · provider · provider_model
+  latency_ms · usage · correlation_id?
+
+Deliberately absent by default: raw state, provider endpoint, invented zeros.</code></pre>
+                    </div>
+                    <p class="small">
+                        Real shape and examples: <a href="https://github.com/howlcipher/howlInstinct/blob/claude/howlinstinct-bootstrap-mvp-fn917z/docs/DECISION_RECEIPTS.md">docs/DECISION_RECEIPTS.md</a>.
+                        Callers who need state text can opt in with <code>--retain-state</code>.
+                    </p>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="ecosystem" aria-labelledby="ecosystem-heading">
+                <div class="tech-header">
+                    <span class="sec-id">05</span>
+                    <h2 id="ecosystem-heading">Where Instinct sits</h2>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        HowlInstinct answers bounded questions. Consumers decide what those answers mean.
+                        Sibling integration notes in this repository are <strong>proposed contracts</strong> — they have not been implemented in sibling repositories from this side.
+                    </p>
+                    <div class="code-container" role="img" aria-label="Stack placement of HowlInstinct">
+                        <div class="code-header">
+                            <span class="code-title">[STACK // INTENT → JUDGMENT → TEAM → ORCHESTRATION → AUTHORITY]</span>
+                            <span class="subsystem-tag">CONCEPTUAL</span>
+                        </div>
+<pre><code>Intent / event
+    │
+    ▼
+HowlInstinct     “Should we do this, and why?”
+    │            (judgment + receipt — no permission)
+    ▼
+HowlForge        “Who should do it?”
+    │
+    ▼
+HowlPlane        “How do we coordinate it?”
+    │
+    ▼
+HowlFrame        “What is it allowed to do?”
+    │
+    ▼
+Execution / ChangeOps / Proof / Relay / Board …</code></pre>
+                    </div>
+                    <div class="table-wrap" style="margin-top: 1.25rem;">
+                        <table>
+                            <caption>Shared boundary</caption>
+                            <thead>
+                                <tr><th scope="col">HowlInstinct</th><th scope="col">The consumer</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Judges</td><td>Decides</td></tr>
+                                <tr><td>Reports uncertainty</td><td>Sets thresholds</td></tr>
+                                <tr><td>Emits receipts</td><td>Applies policy</td></tr>
+                                <tr><td>Knows nothing of consequences</td><td>Takes action</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small">
+                        <a href="https://github.com/howlcipher/howlInstinct/blob/claude/howlinstinct-bootstrap-mvp-fn917z/docs/HOWL_INTEGRATION.md">Integration notes</a> ·
+                        <a href="https://howlcipher.github.io/howlforge/">HowlForge</a> ·
+                        <a href="https://howlcipher.github.io/howlplane/">HowlPlane</a> ·
+                        <a href="https://howlcipher.github.io/howlframe/">HowlFrame</a> ·
+                        <a href="https://howlcipher.github.io/howl/">Hub</a>
+                    </p>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="providers" aria-labelledby="providers-heading">
+                <div class="tech-header">
+                    <span class="sec-id">06</span>
+                    <h2 id="providers-heading">Provider independence</h2>
+                </div>
+                <div class="tech-body">
+                    <p>
+                        HowlInstinct does not depend on one vendor’s definition of reasoning.
+                        A provider is anything that can answer a bounded question through the <code>Provider</code> interface.
+                    </p>
+                    <div class="adversary-grid">
+                        <article class="adversary-card"><div class="adversary-name">mock</div><p>Default offline lexical baseline. Deterministic. Ships with the repo. Not a semantic model.</p></article>
+                        <article class="adversary-card"><div class="adversary-name">jev</div><p>Any Jev-compatible <code>/v1/systemone</code> endpoint. No default hostname — configuration only.</p></article>
+                        <article class="adversary-card"><div class="adversary-name">Future adapters</div><p>Local providers and structured-LLM fallbacks fit the same interface without changing the public API.</p></article>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="getting-started" aria-labelledby="start-heading">
+                <div class="tech-header">
+                    <span class="sec-id">07</span>
+                    <h2 id="start-heading">Quick start</h2>
+                </div>
+                <div class="tech-body">
+                    <div class="code-container">
+                        <div class="code-header">
+                            <span class="code-title">[QUICKSTART // OFFLINE MOCK DEFAULT]</span>
+                            <button class="btn-copy" type="button">[COPY]</button>
+                        </div>
+<pre><code>go install github.com/howlcipher/howlinstinct/cmd/howlinstinct@latest
+# or: make build   # -> build/howlinstinct
+
+howlinstinct providers
+howlinstinct doctor
+howlinstinct decide --type noul \
+  --state "All payment requests are returning HTTP 500 across every region." \
+  --question "Is this an active production incident affecting customers?"
+
+make demo   # event → judgments → receipts → mock policy consumer</code></pre>
+                    </div>
+                    <p class="small">
+                        Requires Go 1.26 or newer. Nothing else for the default mock path: no credentials, no network, no inference hardware.
+                        Philosophy: <a href="https://github.com/howlcipher/howlInstinct/blob/claude/howlinstinct-bootstrap-mvp-fn917z/docs/PHILOSOPHY.md">docs/PHILOSOPHY.md</a>.
+                    </p>
+                </div>
+            </section>
+
+            <section class="tech-panel" id="status" aria-labelledby="status-heading">
+                <div class="tech-header">
+                    <span class="sec-id">08</span>
+                    <h2 id="status-heading">Status &amp; repository</h2>
+                </div>
+                <div class="tech-body">
+                    <div class="boundary-panel">
+                        <p class="boundary-claim">Bootstrap MVP — honest about what it is and is not.</p>
+                        <ul>
+                            <li>Repository: <a href="https://github.com/howlcipher/howlInstinct">github.com/howlcipher/howlInstinct</a></li>
+                            <li>Go library + CLI with offline mock and jev adapter</li>
+                            <li>Decision receipts schema published under <code>schemas/</code></li>
+                            <li>Sibling integrations documented as proposals, not completed wiring</li>
+                            <li>No fabricated production readiness, benchmarks, or vendor lock-in claims</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="site-footer">
+            <div class="footer-telemetry">
+                <div class="status-indicator">
+                    <span class="status-dot" aria-hidden="true" style="background: var(--color-amber); box-shadow: 0 0 6px var(--color-amber);"></span>
+                    <span>SYS_STATUS: ACTIVE // HOWLINSTINCT-DECISION-NODE</span>
+                </div>
+                <div><a href="https://github.com/howlcipher/howlInstinct/blob/claude/howlinstinct-bootstrap-mvp-fn917z/LICENSE" style="color: var(--color-cyan); text-decoration: underline;">LICENSE</a> // HOWL 2026</div>
+            </div>
+            <div class="footer-links">
+                <nav class="footer-nav" aria-label="Ecosystem Links">
+                    <a href="https://howlcipher.github.io/howl/">Howl Hub</a>
+                    <a href="https://howlcipher.github.io/howl/ecosystem.html">Ecosystem</a>
+                    <a href="https://howlcipher.github.io/HowlFutureWorks/">HowlFutureWorks</a>
+                    <a href="https://howlcipher.github.io/howlInstinct/">HowlInstinct</a>
+                    <a href="https://howlcipher.github.io/howlforge/">HowlForge</a>
+                    <a href="https://howlcipher.github.io/howlproof/">HowlProof</a>
+                    <a href="https://howlcipher.github.io/howlcreate/">HowlCreate</a>
+                    <a href="https://howlcipher.github.io/howlframe/">HowlFrame</a>
+                    <a href="https://howlcipher.github.io/howlplane/">HowlPlane</a>
+                    <a href="https://howlcipher.github.io/howlchangeops/">HowlChangeOps</a>
+                    <a href="https://howlcipher.github.io/howlrelay/">HowlRelay</a>
+                    <a href="https://howlcipher.github.io/howlnotes/">HowlNotes</a>
+                    <a href="https://howlcipher.github.io/howlboard/">HowlBoard</a>
+                    <a href="https://howlcipher.github.io/howlwriter/">HowlWriter</a>
+                    <a href="https://howlcipher.github.io/howldream/">HowlDream</a>
+                </nav>
+                <a href="#main-content">[ BACK TO TOP ]</a>
+            </div>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
