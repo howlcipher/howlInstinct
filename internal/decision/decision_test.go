@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/howlcipher/howlinstinct/internal/provider/mock"
-	"github.com/howlcipher/howlinstinct/internal/receipt"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
+	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
 func fixedClock() func() time.Time {

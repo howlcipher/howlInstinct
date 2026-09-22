@@ -9,8 +9,8 @@ import (
 	"github.com/howlcipher/howlinstinct/internal/config"
 	"github.com/howlcipher/howlinstinct/internal/decision"
 	"github.com/howlcipher/howlinstinct/internal/eval"
-	"github.com/howlcipher/howlinstinct/internal/receipt"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
+	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
 type evalFlags struct {

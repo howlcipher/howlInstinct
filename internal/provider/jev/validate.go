@@ -158,7 +158,7 @@ func noulJudgment(id string, j instinct.Judgment, a wireAnswer) (instinct.Judgme
 		return j, err
 	}
 	j.ProbabilityYes = a.Noul
-	j.Bool = instinct.Bool(*a.Noul >= 0.5)
+	j.Bool = instinct.Bool(instinct.BoolFromProbabilityYes(*a.Noul))
 	if m, ok := instinct.MarginFromProbabilityYes(*a.Noul); ok {
 		j.InstinctMargin = instinct.Float(m)
 	}

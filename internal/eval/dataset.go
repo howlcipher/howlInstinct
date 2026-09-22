@@ -18,8 +18,8 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/howlcipher/howlinstinct/internal/receipt"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
+	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
 // DatasetSchema identifies the evaluation dataset contract.

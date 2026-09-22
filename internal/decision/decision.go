@@ -13,8 +13,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/howlcipher/howlinstinct/internal/receipt"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
+	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
 // Engine runs decisions against a provider.

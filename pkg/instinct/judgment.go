@@ -139,6 +139,21 @@ func MarginFromDistribution(dist map[string]float64) (float64, bool) {
 	return vals[0] - vals[1], true
 }
 
+// BoolFromProbabilityYes reduces a noul's probability to the answer.
+//
+// This is argmax over the two classes, not a policy threshold: the answer is
+// simply whichever of P(yes) and P(no) is larger. It is written that way
+// rather than as a comparison against 0.5 so that it cannot be mistaken for,
+// or quietly repurposed as, a confidence cutoff.
+//
+// An exact tie resolves to false, because a coin flip is not an affirmative
+// answer. A caller who cares about the difference between a decisive "no" and
+// a tie should read InstinctMargin, which is 0 for the tie.
+func BoolFromProbabilityYes(pYes float64) bool {
+	pNo := 1 - pYes
+	return pYes > pNo
+}
+
 // MarginFromProbabilityYes returns the InstinctMargin for a noul.
 func MarginFromProbabilityYes(p float64) (float64, bool) {
 	if !isFinite(p) {

@@ -138,7 +138,7 @@ func (p *Provider) answer(id, state string, q instinct.Question) instinct.Judgme
 		no := affinity(stateTokens, q.FalseMeaning)
 		p := squash(yes-no, seedOf(id, state, q.Instructions))
 		j.ProbabilityYes = instinct.Float(p)
-		j.Bool = instinct.Bool(p >= 0.5)
+		j.Bool = instinct.Bool(instinct.BoolFromProbabilityYes(p))
 		if m, ok := instinct.MarginFromProbabilityYes(p); ok {
 			j.InstinctMargin = instinct.Float(m)
 		}

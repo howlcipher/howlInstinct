@@ -12,8 +12,8 @@ import (
 
 	"github.com/howlcipher/howlinstinct/internal/config"
 	"github.com/howlcipher/howlinstinct/internal/decision"
-	"github.com/howlcipher/howlinstinct/internal/receipt"
 	"github.com/howlcipher/howlinstinct/pkg/instinct"
+	"github.com/howlcipher/howlinstinct/pkg/receipt"
 )
 
 // OutputSchema identifies the machine-readable shape of `decide --json`.
