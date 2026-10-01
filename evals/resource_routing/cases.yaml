@@ -1,0 +1,80 @@
+schema: howlinstinct.eval_dataset/v1
+name: resource_routing
+version: 1
+description: >
+  Choose which already-eligible AI resource best fits a task. Written for the
+  HowlPlane resource selection consumer, which applies its own hard policy
+  first (permission, capacity, economics, egress) and only then asks this
+  question about the survivors.
+
+  Resource names are neutral on purpose. The three resources are described in
+  every state: resource_a is a high reasoning tier resource suited to
+  architecture and security work, resource_b is a mid tier resource suited to
+  routine edits, tests and documentation, resource_c is a fast low cost
+  resource suited to small bounded work.
+
+  Labeling honesty: the expected values are the author's judgment about fit.
+  They are not measured outcomes. Where fit is subjective the notes say so.
+  A baseline that scores near chance on these cases is expected, because the
+  offline mock provider is lexical and does not reason. These cases exercise
+  the harness and give HowlPlane shadow mode something to compare against.
+  They are not a benchmark and do not show that any provider routes well.
+
+question:
+  type: classify
+  instructions: >
+    Which already-eligible resource is best suited to perform this task?
+    resource_a is a high reasoning tier resource for architecture and security
+    work. resource_b is a mid tier resource for routine edits, tests and
+    documentation. resource_c is a fast low cost resource for small bounded
+    work. Choose by the demands of the task, not by its urgency.
+  options:
+    - resource_a
+    - resource_b
+    - resource_c
+
+cases:
+  - id: rr-routine-edit
+    state: "task_class: bug_fix. risk: low. objective: fix an off by one error in the pagination helper and update its unit test."
+    expected: resource_c
+    notes: "Small bounded edit. Subjective: resource_b would also be defensible."
+
+  - id: rr-large-autonomous
+    state: "task_class: feature. risk: medium. objective: implement the export service end to end across the api, storage and cli layers with tests, working without supervision for several hours."
+    expected: resource_b
+    notes: "Long autonomous implementation. Subjective: depends on which resource sustains long unattended work."
+
+  - id: rr-architecture
+    state: "task_class: refactor. risk: high. objective: redesign the module boundaries between the scheduler and the worker pool and document the new architecture decision."
+    expected: resource_a
+    notes: "Architectural reasoning is the stated strength of resource_a."
+
+  - id: rr-security
+    state: "task_class: security_patch. risk: critical. objective: fix an authorization bypass in the token validation path and review related call sites for the same flaw."
+    expected: resource_a
+    notes: "Security sensitive change. Reasoning depth matters more than speed."
+
+  - id: rr-docs-only
+    state: "task_class: docs. risk: low. objective: update the installation section of the readme to mention the new minimum runtime version."
+    expected: resource_c
+    notes: "Documentation only. Subjective: resource_b is also reasonable."
+
+  - id: rr-debug-test-repair
+    state: "task_class: test_improvement. risk: medium. objective: diagnose why the integration test is flaky on CI, repair the test and add a regression guard."
+    expected: resource_b
+    notes: "Debugging and test repair. Subjective."
+
+  - id: rr-cicd
+    state: "task_class: infrastructure. risk: medium. objective: add a caching step to the build pipeline and fix the failing lint job configuration."
+    expected: resource_b
+    notes: "Pipeline configuration. Subjective."
+
+  - id: rr-repo-wide-refactor
+    state: "task_class: refactor. risk: high. objective: rename the core domain type across the whole repository, update every caller, and keep the public interface compatible."
+    expected: resource_a
+    notes: "Wide blast radius. Subjective: some would prefer resource_b with strong verification."
+
+  - id: rr-bounded-research
+    state: "task_class: other. risk: low. objective: summarize the three candidate libraries for yaml parsing with their licenses and maintenance status. No code changes."
+    expected: resource_c
+    notes: "Bounded research with no code change. Subjective."

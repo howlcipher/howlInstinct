@@ -180,6 +180,7 @@ Four demonstration suites, reflecting real Howl use cases:
 | `change_risk` | score | HowlChangeOps |
 | `evidence_sufficiency` | noul | HowlProof |
 | `agent_run_triage` | classify | HowlPlane |
+| `resource_routing` | classify | HowlPlane |
 
 **These are demonstrations, not benchmarks.** They are few, written by one
 person, and deliberately not adversarial. Passing them is not evidence that a

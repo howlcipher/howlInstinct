@@ -3,10 +3,14 @@
 How other Howl components can consume HowlInstinct, and the boundary every one
 of them shares.
 
-**Nothing in this document has been implemented in any sibling repository.**
-No sibling repository was modified while building HowlInstinct. These are
-proposed contracts, written from this side, to be accepted or rejected by each
-component's owner.
+**One integration is implemented: HowlPlane resource selection.** HowlPlane
+consumes `howlinstinct decide --json` to rank AI resources that its own
+deterministic policy has already approved. It is off by default and has an
+observe-only shadow mode. See the HowlPlane section below. Every other
+integration in this document is still a proposed contract, written from this
+side, to be accepted or rejected by each component's owner. HowlInstinct itself
+was not modified to support HowlPlane; the consumer lives entirely in the
+HowlPlane repository.
 
 ## The shared boundary
 
@@ -98,7 +102,35 @@ small, frequent, and currently answered by heuristics.
 - **Retry versus escalate**: is this failure likely transient? (`noul`)
   HowlInstinct answers the question; HowlPlane decides whether to retry.
 
-The `agent_run_triage` suite is written for this consumer. Its most important
+### Implemented: resource selection
+
+HowlPlane asks one `choice` question per implementation or remediation task:
+which already-eligible resource is best suited to perform it?
+
+- HowlPlane first applies hard policy (permission, readiness, capability,
+  capacity, economics, egress). Only survivors become the question's options,
+  so HowlInstinct can never add a resource HowlPlane excluded.
+- The request is a normal `decide` request on stdin. The state is a bounded,
+  redacted task summary. Candidate facts travel in the option descriptions.
+  Nothing else is sent.
+- HowlInstinct returns a judgment and a receipt. HowlPlane validates the
+  receipt against the vendored schema, rejects any choice outside the offered
+  options, and treats `provider_confidence` as optional.
+- HowlPlane owns the acceptance threshold on `instinct_margin`, the timeout,
+  and the fallback. HowlInstinct is not given an escalation rule for this
+  question and has no threshold of its own.
+- Any failure (unavailable, timeout, invalid response) falls back to the
+  deterministic ranking. It is never read as a negative judgment.
+- Modes are `off` (default), `shadow` (record the judgment, do not use it) and
+  `active` (an accepted judgment may reorder candidates that already tie on
+  HowlPlane's economic and capacity ranking).
+
+The `resource_routing` suite exercises this question with neutral resource
+names. Its labels are the author's judgment about fit, not measured outcomes,
+and the offline mock scores near chance on it by design.
+
+The `agent_run_triage` suite is written for the failure triage questions
+below, which are still proposals. Its most important
 case is the run whose tests pass because the agent deleted the failing
 assertions: exit status says success, and collapsing that into `success` is
 the expensive mistake.
