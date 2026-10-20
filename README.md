@@ -99,6 +99,7 @@ immediately after install.
 ```sh
 howlinstinct providers     # what adapters exist
 howlinstinct doctor        # resolved config, and anything risky about it
+howlinstinct interop       # howl.interop/v1 descriptor other Howl components check
 howlinstinct version
 ```
 

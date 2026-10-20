@@ -7,6 +7,20 @@ project adheres to semantic versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `howlinstinct interop --json` prints the `howl.interop/v1` descriptor from
+  the Howl interop contract, built from the live command tree: every command
+  and flag, the documents each emits, and the exit-code table. `howl doctor`
+  uses it to check that callers' commands still exist.
+- `providers --json` and `doctor --json` print a `howl.result/v1` envelope.
+  `doctor --json` names the credential variable and never the credential.
+
+### Changed
+
+- `docs/HOWL_INTEGRATION.md` and `docs/ARCHITECTURE.md` record that HowlPlane
+  already consumes `decide --json` and the receipt schema, as a Python caller.
+
 ## [0.1.0] - 2026-09-22
 
 Initial bootstrap: the decision core, two providers, receipts, the evaluation

@@ -32,8 +32,10 @@ configuration system, or a logger.
 
 **`pkg/receipt` is public, `internal/decision` is not.** The receipt is the
 cross-repository contract; the orchestration is an implementation detail.
-HowlPlane is itself Go, so leaving the receipt type under `internal/` would
-have forced every sibling to reparse JSON rather than import the contract.
+Leaving the receipt type under `internal/` would have forced every Go sibling
+to reparse JSON rather than import the contract. Non-Go consumers (HowlPlane's
+engine is Python) read the same contract as JSON, validated against
+`schemas/decision-receipt.schema.json`.
 
 **Provider adapters are internal.** A caller selects a provider by name
 through configuration. Exporting the adapters would invite callers to depend

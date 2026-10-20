@@ -3,10 +3,17 @@
 How other Howl components can consume HowlInstinct, and the boundary every one
 of them shares.
 
-**Nothing in this document has been implemented in any sibling repository.**
-No sibling repository was modified while building HowlInstinct. These are
-proposed contracts, written from this side, to be accepted or rejected by each
-component's owner.
+Most of this document is proposed contracts, written from this side, to be
+accepted or rejected by each component's owner. One is implemented: HowlPlane
+runs `howlinstinct decide --input - --json` as a subprocess and validates the
+`howlinstinct.decide_output/v1` output and each receipt against a vendored copy
+of `schemas/decision-receipt.schema.json` (see [HowlPlane](#howlplane)).
+
+Every consumer calls HowlInstinct through its command line under the
+[Howl interop contract](https://github.com/howlcipher/howl/blob/main/docs/INTEROP.md).
+`howlinstinct interop --json` prints the `howl.interop/v1` descriptor (every
+command and flag, the documents each emits, and the exit codes), which `howl
+doctor` uses to check that a caller's commands still exist.
 
 ## The shared boundary
 
@@ -97,6 +104,14 @@ small, frequent, and currently answered by heuristics.
   failure? (`classify`)
 - **Retry versus escalate**: is this failure likely transient? (`noul`)
   HowlInstinct answers the question; HowlPlane decides whether to retry.
+
+**Implemented.** HowlPlane's semantic layer
+(`src/howlplane/control_plane/semantic/howlinstinct.py`) runs
+`howlinstinct decide --input - --json`, checks the output `schema`, validates
+receipts against `contracts/howlinstinct/` (a vendored copy of
+`schemas/decision-receipt.schema.json`), and maps exit codes 2 to 6 to its own
+statuses. HowlPlane's engine is Python, so it consumes the JSON contract rather
+than importing `pkg/receipt`.
 
 The `agent_run_triage` suite is written for this consumer. Its most important
 case is the run whose tests pass because the agent deleted the failing
