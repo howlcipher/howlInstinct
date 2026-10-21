@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/howlcipher/howlinstinct/internal/config"
 )
@@ -552,4 +553,93 @@ func TestStateIsNotRetainedUnlessAsked(t *testing.T) {
 	if !strings.Contains(opted.stdout, "4021") {
 		t.Fatalf("--retain-state did not retain the state:\n%s", opted.stdout)
 	}
+}
+
+func TestInteropDescribesEveryCommandAndFlag(t *testing.T) {
+	res := run(t, "", "interop", "--json")
+	if res.code != ExitOK {
+		t.Fatalf("exit %d: %v", res.code, res.err)
+	}
+	var d interopDescriptor
+	if err := json.Unmarshal([]byte(res.stdout), &d); err != nil {
+		t.Fatalf("not JSON: %v\n%s", err, res.stdout)
+	}
+	if d.Schema != InteropSchema || d.Component != "howlinstinct" || len(d.ExitCodes) != 8 {
+		t.Fatalf("descriptor header = %+v", d)
+	}
+	described := map[string]interopCommand{}
+	for _, c := range d.Commands {
+		described[strings.Join(c.Path, " ")] = c
+	}
+	if !contains(described[""].Flags, "--version") {
+		t.Errorf("root flags %v lack --version", described[""].Flags)
+	}
+	root := NewRootCommand()
+	for _, sub := range root.Commands() {
+		if sub.Name() == "help" || sub.Name() == "completion" {
+			continue
+		}
+		c, ok := described[sub.Name()]
+		if !ok {
+			t.Errorf("command %q is not described", sub.Name())
+			continue
+		}
+		sub.Flags().VisitAll(func(f *pflag.Flag) {
+			if f.Name != "help" && !contains(c.Flags, "--"+f.Name) {
+				t.Errorf("%s: flag --%s is not described", sub.Name(), f.Name)
+			}
+		})
+	}
+	// HowlPlane runs `decide --input - --json` and validates both documents.
+	decide := described["decide"]
+	if !decide.JSON || !contains(decide.Flags, "--input") || !contains(decide.Emits, OutputSchema) || !contains(decide.Emits, "howlinstinct.decision_receipt/v1") {
+		t.Errorf("decide is described as %+v", decide)
+	}
+	for _, name := range []string{"providers", "doctor"} {
+		if !described[name].JSON {
+			t.Errorf("%s does not offer --json", name)
+		}
+	}
+}
+
+func TestProvidersAndDoctorJSONEnvelopes(t *testing.T) {
+	for _, args := range [][]string{{"providers", "--json"}, {"doctor", "--json"}} {
+		res := run(t, "", args...)
+		if res.code != ExitOK {
+			t.Fatalf("%v: exit %d: %v", args, res.code, res.err)
+		}
+		var e resultEnvelope
+		if err := json.Unmarshal([]byte(res.stdout), &e); err != nil {
+			t.Fatalf("%v: not one JSON document: %v\n%s", args, err, res.stdout)
+		}
+		if e.Schema != ResultSchema || e.Component != "howlinstinct" || e.Status != "ok" || len(e.Command) != 1 || e.Command[0] != args[0] {
+			t.Errorf("%v: envelope = %+v", args, e)
+		}
+	}
+
+	const secret = "sk-live-SUPERSECRET"
+	t.Setenv("HOWLINSTINCT_TEST_KEY", secret)
+	res := run(t, "", "doctor", "--json", "--provider", "jev",
+		"--base-url", "http://remote.example.com", "--api-key-env", "HOWLINSTINCT_TEST_KEY")
+	if strings.Contains(res.stdout, secret) {
+		t.Fatalf("doctor --json leaked the credential:\n%s", res.stdout)
+	}
+	if !strings.Contains(res.stdout, `"api_key_env": "HOWLINSTINCT_TEST_KEY"`) || !strings.Contains(res.stdout, "plaintext HTTP") {
+		t.Errorf("doctor --json lost the variable name or the plaintext warning:\n%s", res.stdout)
+	}
+
+	res = run(t, "", "doctor", "--json", "--provider", "nonsense")
+	var e resultEnvelope
+	if err := json.Unmarshal([]byte(res.stdout), &e); err != nil || e.Status != "failed" || res.code != ExitConfig {
+		t.Errorf("broken config: exit %d, envelope %+v (%v)", res.code, e, err)
+	}
+}
+
+func contains(list []string, want string) bool {
+	for _, s := range list {
+		if s == want {
+			return true
+		}
+	}
+	return false
 }

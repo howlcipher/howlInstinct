@@ -14,6 +14,7 @@ import (
 
 func newDoctorCommand() *cobra.Command {
 	f := &providerFlags{}
+	var jsonOut bool
 
 	cmd := &cobra.Command{
 		Use:   "doctor",
@@ -27,6 +28,9 @@ func newDoctorCommand() *cobra.Command {
 			w := cmd.OutOrStdout()
 
 			cfg, err := config.Load(f.overrides(cmd))
+			if jsonOut {
+				return doctorJSON(cmd, cfg, err)
+			}
 			if err != nil {
 				// A configuration too broken to load is exactly what doctor
 				// exists to explain, so report it legibly and still exit
@@ -56,7 +60,44 @@ func newDoctorCommand() *cobra.Command {
 		},
 	}
 	f.register(cmd)
+	cmd.Flags().BoolVar(&jsonOut, "json", false, "emit a machine-readable howl.result/v1 envelope")
 	return cmd
+}
+
+// doctorJSON reports the same resolution and checks as the text output. Like
+// the text, it names the credential variable and never the credential.
+func doctorJSON(cmd *cobra.Command, cfg config.Config, loadErr error) error {
+	if loadErr != nil {
+		if err := writeResult(cmd, "failed", nil, map[string]string{"code": "CONFIG", "message": loadErr.Error()}); err != nil {
+			return err
+		}
+		return asExit(loadErr)
+	}
+	var lines strings.Builder
+	warnings := runChecks(&lines, cfg)
+	checks := []map[string]string{}
+	for _, line := range strings.Split(strings.TrimRight(lines.String(), "\n"), "\n") {
+		line = strings.TrimSpace(line)
+		if level, msg, ok := strings.Cut(line, " "); ok {
+			checks = append(checks, map[string]string{"level": strings.ToLower(level), "message": strings.TrimSpace(msg)})
+		}
+	}
+	path, explicit := config.LocalConfigPath()
+	data := map[string]any{
+		"provider":    cfg.Provider,
+		"timeout":     cfg.Timeout.String(),
+		"max_retries": cfg.MaxRetries,
+		"sources":     cfg.Sources,
+		"config_file": map[string]any{"path": path, "state": strings.Trim(strings.TrimSpace(fileState(path, explicit)), "()")},
+		"checks":      checks,
+		"warnings":    warnings,
+	}
+	if cfg.Provider == config.ProviderJev {
+		data["base_url"] = cfg.BaseURL
+		data["model"] = cfg.Model
+		data["api_key_env"] = cfg.APIKeyEnv
+	}
+	return writeResult(cmd, "ok", data, nil)
 }
 
 func fileState(path string, explicit bool) string {

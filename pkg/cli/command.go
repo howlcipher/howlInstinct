@@ -45,6 +45,7 @@ func newInstinctCommand(use, short string) *cobra.Command {
 		newProvidersCommand(),
 		newDoctorCommand(),
 		newVersionCommand(),
+		newInteropCommand(),
 	)
 	return root
 }
