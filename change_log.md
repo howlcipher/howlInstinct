@@ -18,6 +18,8 @@ project adheres to semantic versioning.
 
 ### Changed
 
+- Bump `actions/upload-pages-artifact` to v5.0.0, `actions/checkout` to v7.0.1,
+  and `actions/deploy-pages` to v5.0.1.
 - `docs/HOWL_INTEGRATION.md` and `docs/ARCHITECTURE.md` record that HowlPlane
   already consumes `decide --json` and the receipt schema, as a Python caller.
 
